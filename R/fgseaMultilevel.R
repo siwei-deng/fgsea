@@ -135,19 +135,19 @@ fgseaMultilevel <- function(pathways,
     simpleFgseaRes[, nLeZero := NULL]
     simpleFgseaRes[, nGeZero := NULL]
 
-    simpleFgseaRes[modeFraction < 10, pval := as.numeric(NA)]
-    simpleFgseaRes[modeFraction < 10, padj := as.numeric(NA)]
-    simpleFgseaRes[modeFraction < 10, NES := as.numeric(NA)]
+    # simpleFgseaRes[modeFraction < 10, pval := as.numeric(NA)]
+    # simpleFgseaRes[modeFraction < 10, padj := as.numeric(NA)]
+    # simpleFgseaRes[modeFraction < 10, NES := as.numeric(NA)]
 
-    if (any(simpleFgseaRes$modeFraction < 10)){
-        warning("There were ",
-                paste(sum(simpleFgseaRes$modeFraction < 10)),
-                " pathways for which P-values were not calculated properly due to ",
-                "unbalanced (positive and negative) gene-level statistic values. ",
-                "For such pathways pval, padj, NES, log2err are set to NA. ",
-                "You can try to increase the value of the argument nPermSimple (for example set it nPermSimple = ",
-                paste0(format(nPermSimple * 10, scientific = FALSE), ")"))
-    }
+    # if (any(simpleFgseaRes$modeFraction < 10)){
+    #     warning("There were ",
+    #             paste(sum(simpleFgseaRes$modeFraction < 10)),
+    #             " pathways for which P-values were not calculated properly due to ",
+    #             "unbalanced (positive and negative) gene-level statistic values. ",
+    #             "For such pathways pval, padj, NES, log2err are set to NA. ",
+    #             "You can try to increase the value of the argument nPermSimple (for example set it nPermSimple = ",
+    #             paste0(format(nPermSimple * 10, scientific = FALSE), ")"))
+    # }
 
     # Storing NA fgseaSimple results in a separate data.table
     naSimpleRes <- simpleFgseaRes[is.na(pval)]
