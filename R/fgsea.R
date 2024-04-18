@@ -54,14 +54,30 @@ preparePathwaysAndStats <- function(pathways, stats, minSize, maxSize, gseaParam
         stop("Not all stats values are finite numbers")
     }
 
-    # Warning message for ties in stats
-    ties <- sum(duplicated(stats[stats != 0]))
-    if (ties != 0) {
-        warning("There are ties in the preranked stats (",
-                paste(round(ties * 100 / length(stats), digits = 2)),
-                "% of the list).\n",
-                "The order of those tied genes will be arbitrary, which may produce unexpected results.")
+    # # Warning message for ties in stats
+    # ties <- sum(duplicated(stats[stats != 0]))
+    # if (ties != 0) {
+    #     warning("There are ties in the preranked stats (",
+    #             paste(round(ties * 100 / length(stats), digits = 2)),
+    #             "% of the list).\n",
+    #             "The order of those tied genes will be arbitrary, which may produce unexpected results.")
+    # }
+
+    # Handeling ties
+    adjust_ties <- function(vector) {
+      # Find duplicated values
+      dupl_indices <- which(duplicated(vector) | duplicated(vector, fromLast = TRUE))
+      
+      # Define a fixed noise scale suitable for your data scale
+      noise_scale <- 5e-14
+      
+      # Generate a small noise and add it to duplicated values
+      vector[dupl_indices] <- vector[dupl_indices] + runif(length(dupl_indices), -noise_scale, noise_scale)
+      
+      return(vector)
     }
+
+    stats <- adjust_ties(stats)
 
     # Warning message for duplicate gene names
     if (any(duplicated(names(stats)))) {
