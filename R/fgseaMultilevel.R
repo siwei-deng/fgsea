@@ -219,16 +219,16 @@ fgseaMultilevel <- function(pathways,
     # `isCpGeHalf` is a flag that mathces: whether the conditional probability
     # is greater than or equal to 0.5 (see article for details)
     result[, pval := pmin(1, cpp.res$cppMPval / denomProb)]
-    result[, isCpGeHalf := cpp.res$cppIsCpGeHalf]
+    # result[, isCpGeHalf := cpp.res$cppIsCpGeHalf]
     result[, log2err := multilevelError(pval, sampleSize = sampleSize)]
-    result[isCpGeHalf == FALSE, log2err:= NA]
+    # result[isCpGeHalf == FALSE, log2err:= NA]
 
-    if (!all(result$isCpGeHalf)){
-        warning("For some of the pathways the P-values were likely overestimated. ",
-                "For such pathways log2err is set to NA.")
-    }
+    # if (!all(result$isCpGeHalf)){
+    #     warning("For some of the pathways the P-values were likely overestimated. ",
+    #             "For such pathways log2err is set to NA.")
+    # }
 
-    result[, isCpGeHalf := NULL]
+    # result[, isCpGeHalf := NULL]
     result[, modeFraction := NULL]
     result[, denomProb := NULL]
 
