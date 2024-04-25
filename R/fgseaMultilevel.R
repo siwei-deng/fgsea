@@ -237,6 +237,7 @@ fgseaMultilevel <- function(pathways,
     result[, nMoreExtreme := NULL]
 
     # result[pval < eps, c("pval", "log2err") := list(eps, NA)]
+    result[pval < eps, pval := eps]
     result[, padj := p.adjust(pval, method = "BH")]
 
     if (nrow(result[pval==eps & is.na(log2err)])){
