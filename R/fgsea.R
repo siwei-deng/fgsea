@@ -54,30 +54,14 @@ preparePathwaysAndStats <- function(pathways, stats, minSize, maxSize, gseaParam
         stop("Not all stats values are finite numbers")
     }
 
-    # # Warning message for ties in stats
-    # ties <- sum(duplicated(stats[stats != 0]))
-    # if (ties != 0) {
-    #     warning("There are ties in the preranked stats (",
-    #             paste(round(ties * 100 / length(stats), digits = 2)),
-    #             "% of the list).\n",
-    #             "The order of those tied genes will be arbitrary, which may produce unexpected results.")
-    # }
-
-    # Handeling ties
-    adjust_ties <- function(vector) {
-      # Find duplicated values
-      dupl_indices <- which(duplicated(vector) | duplicated(vector, fromLast = TRUE))
-      
-      # Define a fixed noise scale suitable for your data scale
-      noise_scale <- 5e-14
-      
-      # Generate a small noise and add it to duplicated values
-      vector[dupl_indices] <- vector[dupl_indices] + runif(length(dupl_indices), -noise_scale, noise_scale)
-      
-      return(vector)
+    # Warning message for ties in stats
+    ties <- sum(duplicated(stats[stats != 0]))
+    if (ties != 0) {
+        warning("There are ties in the preranked stats (",
+                paste(round(ties * 100 / length(stats), digits = 2)),
+                "% of the list).\n",
+                "The order of those tied genes will be arbitrary, which may produce unexpected results.")
     }
-
-    stats <- adjust_ties(stats)
 
     # Warning message for duplicate gene names
     if (any(duplicated(names(stats)))) {
@@ -511,8 +495,7 @@ fgseaLabel <- function(pathways, mat, labels, nperm,
                     by=.(pathway)]
     pvals[, padj := p.adjust(pval, method="BH")]
     pvals[, ES := pathwayScores[pathway]]
-    # pvals[, NES := ES / ifelse(ES > 0, geZeroMean, abs(leZeroMean))]
-    pvals[, NES := ifelse(leZeroMean == 0 & geZeroMean == 0, 0, ES / ifelse(ES > 0, geZeroMean, abs(leZeroMean)))]
+    pvals[, NES := ES / ifelse(ES > 0, geZeroMean, abs(leZeroMean))]
     pvals[, leZeroMean := NULL]
     pvals[, geZeroMean := NULL]
 
@@ -722,41 +705,21 @@ fgseaSimpleImpl <- function(pathwayScores, pathwaysSizes,
 
     pvals[, ES := pathwayScores[pathway]]
 
-    # pvals[, NES := as.numeric(NA)]
-    pvals[, NES := 0]
-
-    # switch(scoreType,
-    #        std = pvals[(ES > 0 & geZeroMean != 0) | (ES <= 0 & leZeroMean != 0),
-    #                        NES := ES / ifelse(ES > 0, geZeroMean, abs(leZeroMean))],
-    #        pos = pvals[(ES >= 0 & geZeroMean != 0), NES := ES / geZeroMean],
-    #        neg = pvals[(ES <= 0 & leZeroMean != 0), NES := ES / abs(leZeroMean)])
-
-    # switch(scoreType,
-    #        std = pvals[, NES := ifelse((ES > 0 & geZeroMean == 0) | (ES <= 0 & leZeroMean == 0), 0,
-    #                                    ES / ifelse(ES > 0, geZeroMean + 1e-10, abs(leZeroMean) + 1e-10))],
-    #        pos = pvals[, NES := ifelse(ES >= 0 & geZeroMean == 0, 0, ES / (geZeroMean + 1e-10))],
-    #        neg = pvals[, NES := ifelse(ES <= 0 & leZeroMean == 0, 0, ES / (abs(leZeroMean) + 1e-10))])
+    pvals[, NES := as.numeric(NA)]
 
     switch(scoreType,
-           std = {
-             pvals[ES > 0, NES := ifelse(geZeroMean == 0, 0, ES / (geZeroMean + 1e-10))]
-             pvals[ES <= 0, NES := ifelse(leZeroMean == 0, 0, ES / (abs(leZeroMean) + 1e-10))]
-           },
-           pos = pvals[ES >= 0, NES := ifelse(geZeroMean == 0, 0, ES / (geZeroMean + 1e-10))],
-           neg = pvals[ES <= 0, NES := ifelse(leZeroMean == 0, 0, ES / (abs(leZeroMean) + 1e-10))])
+           std = pvals[(ES > 0 & geZeroMean != 0) | (ES <= 0 & leZeroMean != 0),
+                           NES := ES / ifelse(ES > 0, geZeroMean, abs(leZeroMean))],
+           pos = pvals[(ES >= 0 & geZeroMean != 0), NES := ES / geZeroMean],
+           neg = pvals[(ES <= 0 & leZeroMean != 0), NES := ES / abs(leZeroMean)])
 
-    # pvals[, pval := as.numeric(NA)]
-    # pvals[!is.na(NES), pval := pmin((1+nLeEs) / (1 + nLeZero),
-    #                     (1+nGeEs) / (1 + nGeZero))]
-
-    pvals[, pval := pmin((1+nLeEs) / (1 + nLeZero + 1e-10),
-                     (1+nGeEs) / (1 + nGeZero + 1e-10))]
+    pvals[, pval := as.numeric(NA)]
+    pvals[!is.na(NES), pval := pmin((1+nLeEs) / (1 + nLeZero),
+                        (1+nGeEs) / (1 + nGeZero))]
 
 
-    # pvals[, padj := as.numeric(NA)]
-    # pvals[!is.na(pval), padj := p.adjust(pval, method = "BH")]
-
-    pvals[, padj := p.adjust(pval, method = "BH")]
+    pvals[, padj := as.numeric(NA)]
+    pvals[!is.na(pval), padj := p.adjust(pval, method = "BH")]
 
     switch(scoreType,
            std = pvals[, nMoreExtreme :=  ifelse(ES > 0, nGeEs, nLeEs)],
