@@ -721,7 +721,7 @@ fgseaSimpleImpl <- function(pathwayScores, pathwaysSizes,
 
     pvals[, ES := pathwayScores[pathway]]
 
-    pvals[, NES := as.numeric(NA)]
+    # pvals[, NES := as.numeric(NA)]
 
     # switch(scoreType,
     #        std = pvals[(ES > 0 & geZeroMean != 0) | (ES <= 0 & leZeroMean != 0),
@@ -734,6 +734,8 @@ fgseaSimpleImpl <- function(pathwayScores, pathwaysSizes,
                                        ES / ifelse(ES > 0, geZeroMean + 1e-10, abs(leZeroMean) + 1e-10))],
            pos = pvals[, NES := ifelse(ES >= 0 & geZeroMean == 0, 0, ES / (geZeroMean + 1e-10))],
            neg = pvals[, NES := ifelse(ES <= 0 & leZeroMean == 0, 0, ES / (abs(leZeroMean) + 1e-10))])
+
+
 
     # pvals[, pval := as.numeric(NA)]
     # pvals[!is.na(NES), pval := pmin((1+nLeEs) / (1 + nLeZero),
