@@ -236,7 +236,7 @@ fgseaMultilevel <- function(pathways,
     result <- rbindlist(list(result, dtSimpleFgsea, naSimpleRes), use.names = TRUE)
     result[, nMoreExtreme := NULL]
 
-    result[pval < eps, c("pval", "log2err") := list(eps, NA)]
+    # result[pval < eps, c("pval", "log2err") := list(eps, NA)]
     result[, padj := p.adjust(pval, method = "BH")]
 
     if (nrow(result[pval==eps & is.na(log2err)])){
