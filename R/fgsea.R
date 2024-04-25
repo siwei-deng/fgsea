@@ -511,7 +511,8 @@ fgseaLabel <- function(pathways, mat, labels, nperm,
                     by=.(pathway)]
     pvals[, padj := p.adjust(pval, method="BH")]
     pvals[, ES := pathwayScores[pathway]]
-    pvals[, NES := ES / ifelse(ES > 0, geZeroMean, abs(leZeroMean))]
+    # pvals[, NES := ES / ifelse(ES > 0, geZeroMean, abs(leZeroMean))]
+    pvals[, NES := ifelse(leZeroMean == 0 & geZeroMean == 0, NA, ES / ifelse(ES > 0, geZeroMean, abs(leZeroMean)))]
     pvals[, leZeroMean := NULL]
     pvals[, geZeroMean := NULL]
 
