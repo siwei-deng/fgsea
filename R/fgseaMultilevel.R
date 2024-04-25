@@ -67,7 +67,7 @@ fgseaMultilevel <- function(pathways,
                           padj=numeric(),
                           log2err=numeric(),
                           ES=numeric(),
-                          NES=numeric(),
+                          NES=0,
                           size=integer(),
                           leadingEdge=list()))
     }
