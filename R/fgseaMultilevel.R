@@ -67,7 +67,7 @@ fgseaMultilevel <- function(pathways,
                           padj=numeric(),
                           log2err=numeric(),
                           ES=numeric(),
-                          NES=0,
+                          NES=numeric(),
                           size=integer(),
                           leadingEdge=list()))
     }
@@ -154,7 +154,6 @@ fgseaMultilevel <- function(pathways,
     naSimpleRes[, padj := as.numeric(NA)]
     naSimpleRes[, log2err := as.numeric(NA)]
     naSimpleRes[, modeFraction := NULL]
-  naSimpleRes[, NES := 0]
 
     simpleFgseaRes <- simpleFgseaRes[!is.na(pval)]
 
