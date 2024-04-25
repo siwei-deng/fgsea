@@ -722,7 +722,8 @@ fgseaSimpleImpl <- function(pathwayScores, pathwaysSizes,
 
     pvals[, ES := pathwayScores[pathway]]
 
-    pvals[, NES := as.numeric(NA)]
+    # pvals[, NES := as.numeric(NA)]
+    pvals[, NES := 0]
 
     # switch(scoreType,
     #        std = pvals[(ES > 0 & geZeroMean != 0) | (ES <= 0 & leZeroMean != 0),
