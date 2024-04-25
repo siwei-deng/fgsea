@@ -263,7 +263,12 @@ fgseaMultilevel <- function(pathways,
 #'@return The value of the expected error
 #' @examples
 #' expectedError <- multilevelError(pval=1e-10, sampleSize=1001)
+# multilevelError <- function(pval, sampleSize){
+#     return(sqrt(floor(-log2(pval) + 1) * (trigamma((sampleSize+1)/2) - trigamma(sampleSize+1)))/log(2))
+# }
+
 multilevelError <- function(pval, sampleSize){
+    pval <- pmax(pval, .Machine$double.eps)  # Ensure pval is positive
     return(sqrt(floor(-log2(pval) + 1) * (trigamma((sampleSize+1)/2) - trigamma(sampleSize+1)))/log(2))
 }
 
