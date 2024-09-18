@@ -3,11 +3,7 @@
 # fgsea 
 
 `fgsea` is an R-package for fast preranked gene set enrichment analysis (GSEA). This package allows to quickly and accurately calculate arbitrarily low GSEA P-values for a collection of gene sets. P-value estimation is based on an adaptive multi-level split Monte-Carlo scheme. 
-See [the preprint](https://www.biorxiv.org/content/10.1101/060012v3
-        
-        
-        
-        ) for algorithmic details.
+See [the preprint](https://www.biorxiv.org/content/10.1101/060012v3) for algorithmic details.
 
 Full vignette can be found here: http://bioconductor.org/packages/devel/bioc/vignettes/fgsea/inst/doc/fgsea-tutorial.html
 
