@@ -114,13 +114,24 @@ test_that("Ties detection in ranking works", {
                               minSize=10, maxSize=50, BPPARAM=SerialParam()))
 })
 
-test_that("fgseaSimple throws a warning when there are duplicate gene names", {
+test_that("fgseaSimple correctly checks gene names", {
     data(examplePathways)
     data(exampleRanks)
     exampleRanks.dupNames <- exampleRanks
     names(exampleRanks.dupNames)[41] <- names(exampleRanks.dupNames)[42]
 
-    expect_warning(fgseaSimple(examplePathways, exampleRanks.dupNames, nperm=100, minSize=10, maxSize=50, nproc=1))
+    expect_error(fgseaSimple(examplePathways, exampleRanks.dupNames, nperm=100, minSize=10, maxSize=50, nproc=1))
+
+    ranks <- exampleRanks
+    names(ranks)[41] <- NA
+    expect_error(fgseaSimple(examplePathways, ranks, nperm=100, minSize=10, maxSize=50, nproc=1))
+
+    ranks <- exampleRanks
+    names(ranks)[41] <- ""
+    expect_error(fgseaSimple(examplePathways, ranks, nperm=100, minSize=10, maxSize=50, nproc=1))
+
+    ranks <- unname(exampleRanks)
+    expect_error(fgseaSimple(examplePathways, ranks, nperm=100, minSize=10, maxSize=50, nproc=1))
 
 })
 
@@ -167,7 +178,7 @@ test_that("fgseaSimple throws a warning when there are unbalanced gene-level sta
     expect_warning(fgseaSimple(pathway, ranks, nperm = 200, minSize = 15, maxSize = 500))
 })
 
-test_that("fgseaSimple and fgseaMultilevel properly handle duplicated in gene sets", {
+test_that("fgseaSimple and fgseaMultilevel properly handle duplicated genes in gene sets", {
     data(exampleRanks)
     data(examplePathways)
 
@@ -207,6 +218,15 @@ test_that("fgsea skips pathways containing all the possible genes", {
     data("exampleRanks")
     fr <- fgseaSimple(list(p=names(exampleRanks)), exampleRanks, nperm = 1, maxSize=Inf)
     expect_true(!is.null(fr))
+})
+
+test_that("fgseaMultilevel handels superdiscrete cases (like issue #151)", {
+    set.seed(42)
+    stats <- rep(1, 5000)
+    names(stats) <- paste0("g", seq_along(stats))
+    system.time(res <- fgseaMultilevel(pathways=list(p=names(stats)[1:10]),
+                           stats=stats, scoreType = "pos", eps=0, sampleSize = 21))
+    expect_true(is.na(res$log2err))
 })
 
 test_that("leadingEdge interacts correctly with scoreType", {

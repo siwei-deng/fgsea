@@ -9,30 +9,26 @@ checkGesecaArgs <- function(E, pathways){
         stop("E rows should be named")
     }
 
+    # Error if stats names are NA
+    if (any(is.na(rownames(E)))) {
+        stop("NAs in rownames(E) are not allowed")
+    }
+
+    # Error for duplicate gene names
+    if (any(duplicated(rownames(E)))) {
+        stop("Duplicate rownames(E) are not allowed")
+    }
+
     # Error if E has non-finite values
     if (any(!is.finite(E))){
         stop("Not all E values are finite numbers")
     }
-
-    # Warning message for duplicate gene names
-    if (any(duplicated(rownames(E)))) {
-        warning("There are duplicate gene names, geseca may produce unexpected results.")
-    }
 }
 
 gesecaPreparePathways <- function(E, pathways, minSize, maxSize){
-    minSize <- max(minSize, 1)
-    maxSize <- min(nrow(E) - 1, maxSize)
+    res <- preparePathways(pathways, universe = rownames(E), minSize, maxSize)
 
-    pathwaysFiltered <- lapply(pathways, function(p) {unique(na.omit(fmatch(p, rownames(E))))})
-    pathwaysSizes <- sapply(pathwaysFiltered, length)
-
-    toKeep <- which(minSize <= pathwaysSizes & pathwaysSizes <= maxSize)
-    pathwaysFiltered <- pathwaysFiltered[toKeep]
-    pathwaysSizes <- pathwaysSizes[toKeep]
-
-    return(list(filtered=pathwaysFiltered,
-                sizes=pathwaysSizes))
+    return(res)
 }
 
 
