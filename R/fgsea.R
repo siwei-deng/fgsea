@@ -677,10 +677,13 @@ fgseaSimpleImpl <- function(pathwayScores, pathwaysSizes,
     pvals[, ES := pathwayScores[pathway]]
     # pvals[, NES := as.numeric(NA)]
 
+    # Define a small epsilon value to avoid division by zero
+    epsilon <- 1e-10
+    
     # Ensure NES is calculated, ensuring no division by zero or NA issues
     pvals[, NES := ifelse(ES > 0,
-                          ifelse(geZeroMean > 0, ES / geZeroMean, 0),     # Use geZeroMean if > 0, otherwise set NES to 0
-                          ifelse(leZeroMean > 0, ES / abs(leZeroMean), 0))]  # Use leZeroMean if > 0, otherwise set NES to 0
+                          ifelse(geZeroMean > epsilon, ES / geZeroMean, ES / epsilon),     # Use geZeroMean if > epsilon, otherwise use epsilon
+                          ifelse(leZeroMean > epsilon, ES / abs(leZeroMean), ES / epsilon))]  # Use leZeroMean if > epsilon, otherwise use epsilon
 
     # switch(scoreType,
     #        std = pvals[(ES > 0 & geZeroMean != 0) | (ES <= 0 & leZeroMean != 0),
