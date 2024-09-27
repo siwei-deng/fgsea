@@ -675,14 +675,24 @@ fgseaSimpleImpl <- function(pathwayScores, pathwaysSizes,
                     by = .(pathway)]
 
     pvals[, ES := pathwayScores[pathway]]
-
     # pvals[, NES := as.numeric(NA)]
 
-    switch(scoreType,
-           std = pvals[(ES > 0 & geZeroMean != 0) | (ES <= 0 & leZeroMean != 0),
+    # Check for missing or empty NES values
+    if (is.na(pvals$NES) || is.empty(pvals$NES)) {
+        # Calculate NES based on the GSEA score and the mean of the leading edge genes
+        pvals[, NES := as.numeric(NA)]
+        switch(scoreType,
+               std = pvals[(ES > 0 & geZeroMean != 0) | (ES <= 0 & leZeroMean != 0),
                            NES := ES / ifelse(ES > 0, geZeroMean, abs(leZeroMean))],
-           pos = pvals[(ES >= 0 & geZeroMean != 0), NES := ES / geZeroMean],
-           neg = pvals[(ES <= 0 & leZeroMean != 0), NES := ES / abs(leZeroMean)])
+               pos = pvals[(ES >= 0 & geZeroMean != 0), NES := ES / geZeroMean],
+               neg = pvals[(ES <= 0 & leZeroMean != 0), NES := ES / abs(leZeroMean)])
+    }
+
+    # switch(scoreType,
+    #        std = pvals[(ES > 0 & geZeroMean != 0) | (ES <= 0 & leZeroMean != 0),
+    #                        NES := ES / ifelse(ES > 0, geZeroMean, abs(leZeroMean))],
+    #        pos = pvals[(ES >= 0 & geZeroMean != 0), NES := ES / geZeroMean],
+    #        neg = pvals[(ES <= 0 & leZeroMean != 0), NES := ES / abs(leZeroMean)])
 
     # pvals[, pval := as.numeric(NA)]
     # pvals[!is.na(NES), pval := pmin((1+nLeEs) / (1 + nLeZero),
