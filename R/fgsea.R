@@ -678,7 +678,7 @@ fgseaSimpleImpl <- function(pathwayScores, pathwaysSizes,
     # pvals[, NES := as.numeric(NA)]
 
     # Check for missing or empty NES values
-    if (is.na(pvals$NES))) {
+    if (is.na(pvals$NES)) {
         # Calculate NES based on the GSEA score and the mean of the leading edge genes
         pvals[, NES := as.numeric(NA)]
         switch(scoreType,
