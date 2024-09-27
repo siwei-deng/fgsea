@@ -711,10 +711,6 @@ fgseaSimpleImpl <- function(pathwayScores, pathwaysSizes,
     pvals[, size := pathwaysSizes[pathway]]
     pvals[, pathway := names(pathwaysFiltered)[pathway]]
     pvals[, leadingEdge := .(leadingEdges)]
-
-    # Recalculate NES for missing values due to very low mean null distributions
-    # If NES is NA due to poor null distribution, recalculate using a robust approach
-    pvals[is.na(NES), NES := ifelse(ES > 0, ES / (geZeroMean + 1e-5), ES / (abs(leZeroMean) + 1e-5))]
     
     pvals
 }
