@@ -678,12 +678,9 @@ fgseaSimpleImpl <- function(pathwayScores, pathwaysSizes,
     # pvals[, NES := as.numeric(NA)]
 
     # Ensure NES calculation even when leZeroMean or geZeroMean are zero
-    switch(scoreType,
-           std = pvals[, NES := ifelse(ES > 0,
-                                       ifelse(geZeroMean != 0, ES / geZeroMean, 0),
-                                       ifelse(leZeroMean != 0, ES / abs(leZeroMean), 0))],
-           pos = pvals[, NES := ifelse(geZeroMean != 0, ES / geZeroMean, 0)],
-           neg = pvals[, NES := ifelse(leZeroMean != 0, ES / abs(leZeroMean), 0)])
+    pvals[, NES := ifelse(ES > 0,
+                          ifelse(geZeroMean != 0, ES / geZeroMean, 0),
+                          ifelse(leZeroMean != 0, ES / abs(leZeroMean), 0))]
 
     # switch(scoreType,
     #        std = pvals[(ES > 0 & geZeroMean != 0) | (ES <= 0 & leZeroMean != 0),
