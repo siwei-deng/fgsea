@@ -220,6 +220,9 @@ fgseaSimple <- function(pathways,
                         nproc     = 0,
                         gseaParam = 1,
                         BPPARAM   = NULL) {
+    
+    stopifnot(all(is.finite(stats)))
+    
     scoreType <- match.arg(scoreType)
     pp <- preparePathwaysAndStats(pathways, stats, minSize, maxSize, gseaParam, scoreType)
     pathwaysFiltered <- pp$filtered
@@ -682,12 +685,14 @@ fgseaSimpleImpl <- function(pathwayScores, pathwaysSizes,
            neg = pvals[(ES <= 0 & leZeroMean != 0), NES := ES / abs(leZeroMean)])
 
     # pvals[, pval := as.numeric(NA)]
-    pvals[!is.na(NES), pval := pmin((1+nLeEs) / (1 + nLeZero),
-                        (1+nGeEs) / (1 + nGeZero))]
+    # pvals[!is.na(NES), pval := pmin((1+nLeEs) / (1 + nLeZero),
+    #                     (1+nGeEs) / (1 + nGeZero))]
+    pvals[, pval := pmin((1+nLeEs) / (1 + nLeZero), (1+nGeEs) / (1 + nGeZero))]
 
 
     # pvals[, padj := as.numeric(NA)]
-    pvals[!is.na(pval), padj := p.adjust(pval, method = "BH")]
+    # pvals[!is.na(pval), padj := p.adjust(pval, method = "BH")]
+    pvals[, padj := p.adjust(pval, method = "BH")]
 
     switch(scoreType,
            std = pvals[, nMoreExtreme :=  ifelse(ES > 0, nGeEs, nLeEs)],
