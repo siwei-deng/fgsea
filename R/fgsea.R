@@ -680,10 +680,12 @@ fgseaSimpleImpl <- function(pathwayScores, pathwaysSizes,
     # Define a small epsilon value to avoid division by zero
     epsilon <- 1e-10
     
-    # Ensure NES is calculated, ensuring no division by zero or NA issues
+    # Ensure that leZeroMean and geZeroMean are meaningful, avoid division by small or zero values
+    # If leZeroMean or geZeroMean are too small, we can't normalize properly.
+    # We will add a meaningful fallback here to avoid issues.
     pvals[, NES := ifelse(ES > 0,
-                          ifelse(geZeroMean > epsilon, ES / geZeroMean, ES / epsilon),     # Use geZeroMean if > epsilon, otherwise use epsilon
-                          ifelse(leZeroMean > epsilon, ES / abs(leZeroMean), ES / epsilon))]  # Use leZeroMean if > epsilon, otherwise use epsilon
+                          ifelse(geZeroMean > 1e-5, ES / geZeroMean, NA),     # Use geZeroMean only if it's significantly large
+                          ifelse(leZeroMean > 1e-5, ES / abs(leZeroMean), NA))]  # Use leZeroMean only if it's significantly large
 
     # switch(scoreType,
     #        std = pvals[(ES > 0 & geZeroMean != 0) | (ES <= 0 & leZeroMean != 0),
@@ -710,6 +712,10 @@ fgseaSimpleImpl <- function(pathwayScores, pathwaysSizes,
     pvals[, pathway := names(pathwaysFiltered)[pathway]]
     pvals[, leadingEdge := .(leadingEdges)]
 
+    # Recalculate NES for missing values due to very low mean null distributions
+    # If NES is NA due to poor null distribution, recalculate using a robust approach
+    pvals[is.na(NES), NES := ifelse(ES > 0, ES / (geZeroMean + 1e-5), ES / (abs(leZeroMean) + 1e-5))]
+    
     pvals
 }
 
