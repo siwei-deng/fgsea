@@ -757,7 +757,7 @@ fgseaSimpleImpl <- function(pathwayScores, pathwaysSizes,
     
     # Remove the intermediate ES_size_norm column
     pvals[, ES_size_norm := NULL]
-    pvals[, NES_raw := NULL]
+    # pvals[, NES_raw := NULL]
 
     ### END
     
