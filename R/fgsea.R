@@ -742,13 +742,22 @@ fgseaSimpleImpl <- function(pathwayScores, pathwaysSizes,
     }
     
     # Compute NES using the hybrid approach
-    pvals[, NES := ES_size_norm / sigma_ES_size_norm]
+    pvals[, NES_raw := ES_size_norm / sigma_ES_size_norm]
+
+    # Define transformation parameters
+    alpha <- 0.5  # Power factor to non-linearly scale smaller NES values more than larger ones
+    # If you want more aggressive scaling for small values, you can reduce alpha
+    beta <- 1     # Optional shift to adjust the baseline for scaled NES
+    
+    # Apply the power transformation to NES values
+    pvals[, NES := sign(NES_raw) * (abs(NES_raw)^alpha) + beta]
     
     # Print NES values for debugging
     # print(pvals$NES)
     
     # Remove the intermediate ES_size_norm column
     pvals[, ES_size_norm := NULL]
+    pvals[, NES_raw := NULL]
 
     ### END
     
