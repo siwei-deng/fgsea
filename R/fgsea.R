@@ -676,21 +676,37 @@ fgseaSimpleImpl <- function(pathwayScores, pathwaysSizes,
 
     pvals[, ES := pathwayScores[pathway]]
     # pvals[, NES := as.numeric(NA)]
-    
+
+    ### New NES calculation
     # Size-based normalization (with a scaling factor alpha)
     alpha <- 0.5  # You can try different values like 0.5 (sqrt) or 1 (linear scaling)
+    
+    # Check if there are any NAs or zeros in the `size` or `ES` columns
+    if (any(is.na(pvals$ES))) {
+        stop("Error: 'ES' column contains NA values.")
+    }
+    if (any(pvals$size <= 0)) {
+        stop("Error: 'size' column contains zero or negative values.")
+    }
     
     # Calculate the size-normalized ES values and ensure it's numeric
     pvals[, ES_size_norm := as.numeric(ES / (size^alpha))]
     
-    # Check the structure of ES_size_norm to ensure it's numeric
-    print(str(pvals$ES_size_norm))  # This should output 'num' indicating numeric type
+    # Check if ES_size_norm contains NA values or Inf values
+    if (any(is.na(pvals$ES_size_norm))) {
+        stop("Error: 'ES_size_norm' contains NA values.")
+    }
+    if (any(is.infinite(pvals$ES_size_norm))) {
+        stop("Error: 'ES_size_norm' contains infinite values.")
+    }
     
     # Estimate the standard deviation of the size-normalized ES values
     sigma_ES_size_norm <- sd(pvals$ES_size_norm, na.rm = TRUE)
     
-    # Print sigma_ES_size_norm to check if it's being calculated correctly
-    print(paste("Standard deviation of size-normalized ES:", sigma_ES_size_norm))
+    # Check if the standard deviation is a valid number
+    if (is.na(sigma_ES_size_norm) || sigma_ES_size_norm == 0) {
+        stop("Error: Standard deviation of size-normalized ES is NA or zero.")
+    }
     
     # Compute NES using the hybrid approach
     pvals[, NES := ES_size_norm * 10 / sigma_ES_size_norm]
@@ -700,6 +716,8 @@ fgseaSimpleImpl <- function(pathwayScores, pathwaysSizes,
     
     # Remove the intermediate ES_size_norm column
     pvals[, ES_size_norm := NULL]
+
+    ### END
 
     # switch(scoreType,
     #        std = pvals[(ES > 0 & geZeroMean != 0) | (ES <= 0 & leZeroMean != 0),
