@@ -680,8 +680,11 @@ fgseaSimpleImpl <- function(pathwayScores, pathwaysSizes,
     # Size-based normalization (with a scaling factor alpha)
     alpha <- 0.5  # You can try different values like 0.5 (sqrt) or 1 (linear scaling)
     
-    # Calculate the size-normalized ES values and check the result
-    pvals[, `:=`(ES_size_norm = ES / (size^alpha))]
+    # Calculate the size-normalized ES values and ensure it's numeric
+    pvals[, ES_size_norm := as.numeric(ES / (size^alpha))]
+    
+    # Check the structure of ES_size_norm to ensure it's numeric
+    print(str(pvals$ES_size_norm))  # This should output 'num' indicating numeric type
     
     # Estimate the standard deviation of the size-normalized ES values
     sigma_ES_size_norm <- sd(pvals$ES_size_norm, na.rm = TRUE)
@@ -690,7 +693,7 @@ fgseaSimpleImpl <- function(pathwayScores, pathwaysSizes,
     print(paste("Standard deviation of size-normalized ES:", sigma_ES_size_norm))
     
     # Compute NES using the hybrid approach
-    pvals[, `:=`(NES = ES_size_norm * 10 / sigma_ES_size_norm)]
+    pvals[, NES := ES_size_norm * 10 / sigma_ES_size_norm]
     
     # Print NES values for debugging
     print(pvals$NES)
