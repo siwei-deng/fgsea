@@ -742,10 +742,10 @@ fgseaSimpleImpl <- function(pathwayScores, pathwaysSizes,
     }
     
     # Compute NES using the hybrid approach
-    pvals[, NES := ES_size_norm * 10 / sigma_ES_size_norm]
+    pvals[, NES := ES_size_norm / sigma_ES_size_norm]
     
     # Print NES values for debugging
-    print(pvals$NES)
+    # print(pvals$NES)
     
     # Remove the intermediate ES_size_norm column
     pvals[, ES_size_norm := NULL]
