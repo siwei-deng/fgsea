@@ -683,17 +683,25 @@ fgseaSimpleImpl <- function(pathwayScores, pathwaysSizes,
     
     # Check if there are any NAs or zeros in the `size` or `ES` columns
     if (any(is.na(pvals$ES))) {
-        stop("Error: 'ES' column contains NA values.")
+        warning("Warning: 'ES' column contains NA values. These pathways will be removed.")
     }
     if (any(pvals$size <= 0)) {
-        stop("Error: 'size' column contains zero or negative values.")
+        warning("Warning: 'size' column contains zero or negative values. These pathways will be removed.")
     }
+    
+    # Filter out invalid rows where size is <= 0 or ES is NA
+    pvals <- pvals[!is.na(ES) & size > 0]
     
     # Calculate the size-normalized ES values and ensure it's numeric
     pvals[, ES_size_norm := as.numeric(ES / (size^alpha))]
     
     # Check if ES_size_norm contains NA values or Inf values
     if (any(is.na(pvals$ES_size_norm))) {
+        warning("Warning: 'ES_size_norm' contains NA values. Investigating possible causes.")
+        # Check which rows have NA in ES_size_norm
+        problematic_rows <- pvals[is.na(ES_size_norm)]
+        print("Problematic rows with NA values in ES_size_norm:")
+        print(problematic_rows)
         stop("Error: 'ES_size_norm' contains NA values.")
     }
     if (any(is.infinite(pvals$ES_size_norm))) {
