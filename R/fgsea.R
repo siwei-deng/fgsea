@@ -750,7 +750,7 @@ fgseaSimpleImpl <- function(pathwayScores, pathwaysSizes,
     beta <- 1     # Optional shift to adjust the baseline for scaled NES
     
     # Apply the power transformation to NES values
-    pvals[, NES := sign(NES_raw) * (abs(NES_raw)^alpha) + beta]
+    pvals[, NES := sign(NES_raw) * ((abs(NES_raw)^alpha) + beta)]
     
     # Print NES values for debugging
     # print(pvals$NES)
