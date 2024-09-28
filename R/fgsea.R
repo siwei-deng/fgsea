@@ -684,9 +684,9 @@ fgseaSimpleImpl <- function(pathwayScores, pathwaysSizes,
     # Estimate the standard deviation of the size-normalized ES values
     sigma_ES_size_norm <- sd(pvals$ES_size_norm, na.rm = TRUE)
     
-    # Compute NES using the hybrid approach
+    # Compute NES using the hybrid approach (multiplying by 10 for scaling)
     pvals[, NES := ES_size_norm * 10 / sigma_ES_size_norm]
-
+    
     # Remove the intermediate ES_size_norm column from the output
     pvals[, ES_size_norm := NULL]
 
