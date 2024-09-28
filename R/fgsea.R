@@ -677,14 +677,15 @@ fgseaSimpleImpl <- function(pathwayScores, pathwaysSizes,
     pvals[, ES := pathwayScores[pathway]]
     # pvals[, NES := as.numeric(NA)]
     
-    # Introduce a threshold for meaningful null distribution values
-    # If geZeroMean or leZeroMean is too small, we skip normalization for those pathways
-    min_null_threshold <- 1e-5
+    # Size-based normalization (with a scaling factor alpha)
+    alpha <- 0.5  # You can try different values like 0.5 (sqrt) or 1 (linear scaling)
+    pvals[, ES_size_norm := ES / (size^alpha)]
     
-    # Ensure that NES is only calculated if null distribution values are meaningful
-    pvals[, NES := ifelse(ES > 0,
-                          ifelse(geZeroMean > min_null_threshold, ES / geZeroMean, NA),  # Only compute NES if geZeroMean is large enough
-                          ifelse(leZeroMean > min_null_threshold, ES / abs(leZeroMean), NA))]  # Only compute NES if leZeroMean is large enough
+    # Estimate the standard deviation of the size-normalized ES values
+    sigma_ES_size_norm <- sd(pvals$ES, na.rm = TRUE)
+    
+    # Compute NES using the hybrid approach
+    pvals[, NES := ES_size_norm * 10 / sigma_ES_size_norm]
 
     # switch(scoreType,
     #        std = pvals[(ES > 0 & geZeroMean != 0) | (ES <= 0 & leZeroMean != 0),
