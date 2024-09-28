@@ -682,10 +682,13 @@ fgseaSimpleImpl <- function(pathwayScores, pathwaysSizes,
     pvals[, ES_size_norm := ES / (size^alpha)]
     
     # Estimate the standard deviation of the size-normalized ES values
-    sigma_ES_size_norm <- sd(pvals$ES, na.rm = TRUE)
+    sigma_ES_size_norm <- sd(pvals$ES_size_norm, na.rm = TRUE)
     
     # Compute NES using the hybrid approach
     pvals[, NES := ES_size_norm * 10 / sigma_ES_size_norm]
+
+    # Remove the intermediate ES_size_norm column from the output
+    pvals[, ES_size_norm := NULL]
 
     # switch(scoreType,
     #        std = pvals[(ES > 0 & geZeroMean != 0) | (ES <= 0 & leZeroMean != 0),
