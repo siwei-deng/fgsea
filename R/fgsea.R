@@ -677,6 +677,31 @@ fgseaSimpleImpl <- function(pathwayScores, pathwaysSizes,
     pvals[, ES := pathwayScores[pathway]]
     # pvals[, NES := as.numeric(NA)]
 
+    # switch(scoreType,
+    #        std = pvals[(ES > 0 & geZeroMean != 0) | (ES <= 0 & leZeroMean != 0),
+    #                        NES := ES / ifelse(ES > 0, geZeroMean, abs(leZeroMean))],
+    #        pos = pvals[(ES >= 0 & geZeroMean != 0), NES := ES / geZeroMean],
+    #        neg = pvals[(ES <= 0 & leZeroMean != 0), NES := ES / abs(leZeroMean)])
+
+    # pvals[, pval := as.numeric(NA)]
+    # pvals[!is.na(NES), pval := pmin((1+nLeEs) / (1 + nLeZero),
+    #                     (1+nGeEs) / (1 + nGeZero))]
+    pvals[, pval := pmin((1+nLeEs) / (1 + nLeZero), (1+nGeEs) / (1 + nGeZero))]
+
+
+    # pvals[, padj := as.numeric(NA)]
+    # pvals[!is.na(pval), padj := p.adjust(pval, method = "BH")]
+    pvals[, padj := p.adjust(pval, method = "BH")]
+
+    switch(scoreType,
+           std = pvals[, nMoreExtreme :=  ifelse(ES > 0, nGeEs, nLeEs)],
+           pos = pvals[, nMoreExtreme :=  nGeEs],
+           neg = pvals[, nMoreExtreme :=  nLeEs])
+
+    pvals[, size := pathwaysSizes[pathway]]
+    pvals[, pathway := names(pathwaysFiltered)[pathway]]
+    pvals[, leadingEdge := .(leadingEdges)]
+
     ### New NES calculation
     # Size-based normalization (with a scaling factor alpha)
     alpha <- 0.5  # You can try different values like 0.5 (sqrt) or 1 (linear scaling)
@@ -726,31 +751,6 @@ fgseaSimpleImpl <- function(pathwayScores, pathwaysSizes,
     pvals[, ES_size_norm := NULL]
 
     ### END
-
-    # switch(scoreType,
-    #        std = pvals[(ES > 0 & geZeroMean != 0) | (ES <= 0 & leZeroMean != 0),
-    #                        NES := ES / ifelse(ES > 0, geZeroMean, abs(leZeroMean))],
-    #        pos = pvals[(ES >= 0 & geZeroMean != 0), NES := ES / geZeroMean],
-    #        neg = pvals[(ES <= 0 & leZeroMean != 0), NES := ES / abs(leZeroMean)])
-
-    # pvals[, pval := as.numeric(NA)]
-    # pvals[!is.na(NES), pval := pmin((1+nLeEs) / (1 + nLeZero),
-    #                     (1+nGeEs) / (1 + nGeZero))]
-    pvals[, pval := pmin((1+nLeEs) / (1 + nLeZero), (1+nGeEs) / (1 + nGeZero))]
-
-
-    # pvals[, padj := as.numeric(NA)]
-    # pvals[!is.na(pval), padj := p.adjust(pval, method = "BH")]
-    pvals[, padj := p.adjust(pval, method = "BH")]
-
-    switch(scoreType,
-           std = pvals[, nMoreExtreme :=  ifelse(ES > 0, nGeEs, nLeEs)],
-           pos = pvals[, nMoreExtreme :=  nGeEs],
-           neg = pvals[, nMoreExtreme :=  nLeEs])
-
-    pvals[, size := pathwaysSizes[pathway]]
-    pvals[, pathway := names(pathwaysFiltered)[pathway]]
-    pvals[, leadingEdge := .(leadingEdges)]
     
     pvals
 }
